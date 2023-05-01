@@ -37,7 +37,7 @@ async def get_creator_faults(
         user=Depends(current_active_user)
 ):
     faults = await get_faults(session, user.id)
-    return [get_fault_with_full_link_image(fault, str(request.base_url)) for fault in faults]
+    return [get_fault_with_full_link_image(fault, request.base_url) for fault in faults]
 
 
 @fault_router.post('/', response_model=FaultRead)
@@ -50,5 +50,5 @@ async def create_creator_fault(
         user=Depends(current_active_user)
 ):
     fault = await create_fault(description, user, back_task, session, file)
-    fault_pd = get_fault_with_full_link_image(fault, request)
+    fault_pd = get_fault_with_full_link_image(fault, request.base_url)
     return fault_pd

@@ -5,9 +5,9 @@ import smtplib
 from email.message import EmailMessage
 from src.database import async_session_maker
 from src.fault.services import get_faults, get_fault_with_full_link_image
-from src.config import EMAIL_FROM, EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
+from src.config import EMAIL_FROM, EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, REDIS_HOST, REDIS_PORT
 
-celery_app = Celery('tasks', broker='redis://localhost')
+celery_app = Celery('tasks', broker=f'redis://{REDIS_HOST}:{REDIS_PORT}')
 
 
 def get_email_template_dashboard(email_to:str, faults):

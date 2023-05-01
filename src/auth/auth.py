@@ -3,13 +3,13 @@ from fastapi_users.authentication import JWTStrategy
 from fastapi_users.authentication import AuthenticationBackend
 
 #cookie_transport = CookieTransport(cookie_name='imagehost', cookie_max_age=3600)
-bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
+from src.config import SECRET_AUTH
 
-SECRET = "SECRET"
+bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 
 
 def get_jwt_strategy() -> JWTStrategy:
-    return JWTStrategy(secret=SECRET, lifetime_seconds=36000)
+    return JWTStrategy(secret=SECRET_AUTH, lifetime_seconds=36000)
 
 
 auth_backend = AuthenticationBackend(

@@ -18,9 +18,13 @@ DB_USER_TEST = os.environ.get("DB_USER_TEST")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 EMAIL_HOST = os.environ.get("EMAIL_HOST")
 EMAIL_FROM = os.environ.get("EMAIL_FROM")
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = os.environ.get("EMAIL_PORT")
+
+SECRET_AUTH = os.environ.get("SECRET_AUTH")
+
+REDIS_HOST = os.environ.get("REDIS_HOST")
+REDIS_PORT = os.environ.get("REDIS_PORT")

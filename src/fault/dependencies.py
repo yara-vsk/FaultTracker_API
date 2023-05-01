@@ -25,7 +25,7 @@ async def valid_fault(
     fault = await get_fault(fault_id, session)
     if not fault or fault.creator_id != user.id:
         raise HTTPException(status_code=404, detail="Not found.")
-    fault_pd = get_fault_with_full_link_image(fault, request)
+    fault_pd = get_fault_with_full_link_image(fault, request.base_url)
     return fault_pd
 
 
