@@ -1,0 +1,7 @@
+venv
+media
+.pytest_cache
+__pycache__
+dump.rdb
+.env
+.env-non-dev
