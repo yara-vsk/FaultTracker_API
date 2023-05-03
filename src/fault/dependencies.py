@@ -1,9 +1,8 @@
 from fastapi import HTTPException, UploadFile, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Request
 from src.auth.manager import current_active_user
 from src.database import get_async_session
-from src.fault.services import get_fault, get_image, get_fault_with_full_link_image
+from src.fault.services import get_fault, get_image
 
 MAX_SIZE = 1024 * 1024 * 10  # 10 megabytes
 
@@ -18,15 +17,13 @@ def valid_image(file: UploadFile):
 
 async def valid_fault(
         fault_id: int,
-        request: Request,
         session: AsyncSession = Depends(get_async_session),
         user=Depends(current_active_user),
 ):
     fault = await get_fault(fault_id, session)
     if not fault or fault.creator_id != user.id:
         raise HTTPException(status_code=404, detail="Not found.")
-    fault_pd = get_fault_with_full_link_image(fault, request.base_url)
-    return fault_pd
+    return fault
 
 
 async def valid_image_path(

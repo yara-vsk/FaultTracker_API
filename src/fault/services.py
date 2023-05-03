@@ -18,6 +18,10 @@ async def write_image(file_name, file):
             await buffer.write(chunk)
 
 
+def delete_image(file_path):
+    os.remove(file_path)
+
+
 async def create_fault(description, user, back_task, session, file):
     file_name = f'{uuid4()}.' + str(file.filename.split('.')[1])
     fault = Fault(description=description, creator_id=user.id, images=[Image(file_name=file_name)])
@@ -27,10 +31,33 @@ async def create_fault(description, user, back_task, session, file):
     return fault
 
 
+async def update_fault(fault, description, back_task, session, file):
+    if description:
+        fault.description = description
+    if file:
+        for image in fault.images:
+            back_task.add_task(delete_image, os.path.join(BASE_DIR, 'media', str(fault.creator_id), image.file_name))
+            session.delete(image)
+        file_name = f'{uuid4()}.' + str(file.filename.split('.')[1])
+        fault.images=[Image(file_name=file_name)]
+        back_task.add_task(write_image, os.path.join(BASE_DIR, 'media', str(fault.creator_id), file_name), file)
+    await session.commit()
+    return fault
+
+
 async def get_fault(fault_id, session):
     stmt = select(Fault).where(Fault.id == fault_id).options(selectinload(Fault.images))
     fault = await session.scalar(stmt)
     return fault
+
+
+async def delete_fault(fault, session, back_task):
+    images = fault.images
+    for image in images:
+        back_task.add_task(delete_image, os.path.join(BASE_DIR, 'media', str(fault.creator_id), image.file_name))
+    await session.delete(fault)
+    await session.commit()
+    return
 
 
 async def get_faults(session, user_id):

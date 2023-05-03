@@ -12,8 +12,7 @@ class Image(Base):
     __tablename__ = "image"
     id: Mapped[int] = mapped_column(primary_key=True)
     file_name: Mapped[str] = mapped_column(String(500), unique=True)
-    fault_id: Mapped[int] = mapped_column(ForeignKey("fault.id", ondelete="cascade"))
-    fault: Mapped["Fault"] = relationship(back_populates="images")
+    fault_id: Mapped[int] = mapped_column(ForeignKey("fault.id"))
 
     def __repr__(self) -> str:
         return f"Image(id={self.id!r})"
@@ -23,7 +22,7 @@ class Fault(Base):
     __tablename__ = "fault"
     id: Mapped[int] = mapped_column(primary_key=True)
     description: Mapped[str] = mapped_column(String(500), nullable=False)
-    images: Mapped[List["Image"]] = relationship(back_populates="fault")
+    images: Mapped[List["Image"]] = relationship(cascade="all, delete, delete-orphan")
     creator_id: Mapped[int] = mapped_column(ForeignKey('user.id', ondelete="cascade"))
     create_date: Mapped[datetime] = mapped_column(insert_default=func.now())
 
