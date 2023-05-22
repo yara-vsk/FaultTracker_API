@@ -13,6 +13,7 @@ from fastapi_cache.backends.redis import RedisBackend
 
 from redis import asyncio as aioredis
 
+from src.project.router import project_router
 from src.tasks.router import tasks_router
 
 app = FastAPI()
@@ -39,6 +40,7 @@ app.include_router(
 
 app.include_router(fault_router)
 app.include_router(tasks_router)
+app.include_router(project_router)
 
 @app.on_event("startup")
 async def startup():
