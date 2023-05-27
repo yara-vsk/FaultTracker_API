@@ -20,3 +20,15 @@ async def create_project(project, user_id, session):
     session.add(project)
     await session.commit()
     return project
+
+
+async def delete_project(project, session):
+    await session.delete(project)
+    await session.commit()
+    return
+
+
+async def update_project(project, name, session):
+    project.name = name
+    await session.commit()
+    return project

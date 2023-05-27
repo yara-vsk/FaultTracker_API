@@ -5,7 +5,8 @@ from src.auth.manager import current_active_user
 
 
 tasks_router = APIRouter(
-    prefix="/report"
+    prefix="/report",
+    tags=['Report']
 )
 
 
