@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.manager import current_active_user
 from src.database import get_async_session
 from src.fault.services import get_fault, get_image
+from src.project.dependencies import valid_project
+from src.project.models import Project
 
 MAX_SIZE = 1024 * 1024 * 10  # 10 megabytes
 
@@ -17,11 +19,12 @@ def valid_image(file: UploadFile):
 
 async def valid_fault(
         fault_id: int,
+        project: Project = Depends(valid_project),
         session: AsyncSession = Depends(get_async_session),
         user=Depends(current_active_user),
 ):
     fault = await get_fault(fault_id, session)
-    if not fault or fault.creator_id != user.id:
+    if not fault or fault.creator_id != user.id or fault.project_id != project.id:
         raise HTTPException(status_code=404, detail="Not found.")
     return fault
 

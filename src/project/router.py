@@ -1,11 +1,12 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, UploadFile, Query, Request
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.background import BackgroundTasks
 
 from src.auth.manager import current_active_user
 from src.database import get_async_session
+from src.fault.router import fault_router
 from src.project.dependencies import valid_project
 from fastapi_cache.decorator import cache
 
@@ -16,7 +17,7 @@ project_router = APIRouter(
     prefix="/project",
     tags=['Project']
 )
-
+#project_router.include_router(fault_router)
 
 @project_router.get('/{project_id}', response_model=ProjectRead)
 async def get_user_project_by_id(

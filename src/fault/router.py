@@ -1,5 +1,5 @@
 from typing import List, Annotated, Union
-from fastapi import APIRouter, Depends, UploadFile, Query, Request
+from fastapi import APIRouter, Depends, UploadFile, Query, Request, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.background import BackgroundTasks
 from fastapi.responses import FileResponse
@@ -11,8 +11,11 @@ from src.fault.schemas import FaultRead
 from src.fault.services import create_fault, get_faults, get_fault_with_full_link_image, delete_fault, update_fault
 from fastapi_cache.decorator import cache
 
+from src.project.dependencies import valid_project
+from src.project.models import Project
+
 fault_router = APIRouter(
-    prefix="/fault",
+    prefix="/project/{project_id}/fault",
     tags=['Fault']
 )
 
@@ -65,10 +68,11 @@ async def get_image(
 @fault_router.get('/', response_model=List[FaultRead])
 async def get_creator_faults(
         request: Request,
+        project: Project = Depends(valid_project),
         session: AsyncSession = Depends(get_async_session),
         user=Depends(current_active_user)
 ):
-    faults = await get_faults(session, user.id)
+    faults = await get_faults(session, user.id, project.id)
     return [get_fault_with_full_link_image(fault, request.base_url) for fault in faults]
 
 
@@ -76,11 +80,12 @@ async def get_creator_faults(
 async def create_creator_fault(
         back_task: BackgroundTasks,
         request: Request,
+        project: Project = Depends(valid_project),
         file: UploadFile = Depends(valid_image),
-        description: str = Query(max_length=50),
+        description: str = Body(max_length=50),
         session: AsyncSession = Depends(get_async_session),
-        user=Depends(current_active_user)
+        user = Depends(current_active_user)
 ):
-    fault = await create_fault(description, user, back_task, session, file)
+    fault = await create_fault(description, project.id, user, back_task, session, file)
     fault_pd = get_fault_with_full_link_image(fault, request.base_url)
     return fault_pd

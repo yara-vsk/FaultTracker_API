@@ -25,6 +25,7 @@ class Fault(Base):
     images: Mapped[List["Image"]] = relationship(cascade="all, delete, delete-orphan")
     creator_id: Mapped[int] = mapped_column(ForeignKey('user.id', ondelete="cascade"))
     create_date: Mapped[datetime] = mapped_column(insert_default=func.now())
+    project_id: Mapped[int] = mapped_column(ForeignKey("project.id", ondelete="cascade"))
 
     def __repr__(self) -> str:
         return f"Fault(id={self.id!r})"

@@ -27,7 +27,9 @@ class FaultRead(BaseModel):
     id: int
     description: str
     images: List["ImageRead"]
+    creator_id: int
     create_date: datetime
+    project_id: int
 
     class Config:
         orm_mode = True
