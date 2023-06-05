@@ -10,6 +10,19 @@ async def create_permission(perm_pd, session):
     return permission
 
 
+async def get_permission_by_codename(codename, session):
+    stmt = select(Permission).where(Permission.codename == codename)
+    permission = await session.scalar(stmt)
+    return permission
+
+
+async def delete_permission(codename, session):
+    permission = await get_permission_by_codename(codename, session)
+    session.delete(permission)
+    await session.commit()
+    return
+
+
 async def add_user_permission(permission, user, session):
     user_perm = UserPermission(user_id=user.id, permission_id=permission.id)
     session.add(user_perm)
@@ -20,6 +33,6 @@ async def add_user_permission(permission, user, session):
 async def check_user_perms(user, codename, session):
     stmt = select(UserPermission).join(Permission,UserPermission.permission_id == Permission.id).\
         where(UserPermission.user_id == user.id).\
-        where(Permission.codename == codename)#.options(contains_eager(UserPermission.permission_id))
+        where(Permission.codename == codename)
     user_perms = await session.execute(stmt)
     return user_perms.scalar()

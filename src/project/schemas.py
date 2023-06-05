@@ -19,3 +19,16 @@ class ProjectRead(ProjectCreate):
 
     class Config:
         orm_mode = True
+
+
+class ProjectMemberCreate(BaseModel):
+    user_id: int
+    project_id: int
+    member_role_id: int
+
+    class Config:
+        orm_mode = True
+
+
+class ProjectMemberRead(ProjectMemberCreate):
+    id: int

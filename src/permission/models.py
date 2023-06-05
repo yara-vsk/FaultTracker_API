@@ -7,7 +7,7 @@ from src.database import Base
 class Permission(Base):
     __tablename__ = "permission"
     id: Mapped[int] = mapped_column(primary_key=True)
-    codename: Mapped[str] = mapped_column(String(300), nullable=False)
+    codename: Mapped[str] = mapped_column(String(300), nullable=False, unique=True)
     name: Mapped[str] = mapped_column(String(300), nullable=False)
 
     def __repr__(self) -> str:

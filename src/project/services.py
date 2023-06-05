@@ -1,6 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
+from src.auth.models import User
 from src.database import async_session_maker
 from src.project.models import Project, MemberRole, ProjectMember
 
@@ -55,6 +56,12 @@ async def create_project_member(project_id, user_id, role_name, session):
     session.add(project_member)
     await session.commit()
     return project_member
+
+
+async def get_project_members_srv(project_id, session):
+    stmt = select(ProjectMember).where(ProjectMember.project_id == project_id)
+    project_members = await session.execute(stmt)
+    return project_members.scalars().all()
 
 
 async def get_user_project_role(project_id, user_id, session):
