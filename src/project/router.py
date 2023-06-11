@@ -13,7 +13,7 @@ from src.permission.services import create_permission, add_user_permission, dele
 from src.project.dependencies import valid_project, project_with_user_perm
 from fastapi_cache.decorator import cache
 
-from src.project.schemas import ProjectRead, ProjectCreate, ProjectMemberRead
+from src.project.schemas import ProjectRead, ProjectCreate, ProjectMemberRead, ProjectMemberOUT
 from src.project.services import create_project, get_projects, delete_project, update_project, create_project_member, \
     get_project_members_srv
 
@@ -23,13 +23,12 @@ project_router = APIRouter(
 )
 
 
-@project_router.get('/{project_id}/member', response_model=List[ProjectMemberRead])
+@project_router.get('/{project_id}/member', response_model=List[ProjectMemberOUT])
 async def get_project_members(
         project=Depends(project_with_user_perm),
         session: AsyncSession = Depends(get_async_session)
 ):
     project_members = await get_project_members_srv(project.id, session)
-    print(project_members)
     return project_members
 
 

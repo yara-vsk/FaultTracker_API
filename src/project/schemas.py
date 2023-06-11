@@ -32,3 +32,24 @@ class ProjectMemberCreate(BaseModel):
 
 class ProjectMemberRead(ProjectMemberCreate):
     id: int
+
+
+class MemberRoleCreate(BaseModel):
+    name: str
+
+
+class MemberRoleRead(MemberRoleCreate):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
+class ProjectMemberOUT(BaseModel):
+    id: int
+    user: UserRead
+    project: ProjectRead
+    member_role: MemberRoleRead
+
+    class Config:
+        orm_mode = True
