@@ -1,6 +1,9 @@
 # FastAPI project
 
 ## General info
+
+<img alt="img.png" height="439" src="img.png" width="314,5"/>
+
 * Users can registration and authentication;
 * Users can create "project";
 * Users can create project "faults"  (upload images and description) assigned to created project via HTTP request;
