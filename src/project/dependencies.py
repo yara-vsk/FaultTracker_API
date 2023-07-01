@@ -1,12 +1,12 @@
-from fastapi import HTTPException, UploadFile, Depends
+from fastapi import HTTPException, UploadFile, Depends, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 
-from src.auth.manager import current_active_user
+from src.auth.manager import current_active_user, get_user_manager
 from src.database import get_async_session
 from src.permission.services import check_user_perms
 from src.project.models import Project
-from src.project.services import get_project, get_projects, get_user_project_role
+from src.project.services import get_project, get_projects, get_user_project_role, get_member_role
 
 
 async def valid_project(
@@ -35,3 +35,35 @@ async def project_with_user_perm(
     if request.method == 'DELETE' and project.creator_id != user.id:
         raise HTTPException(status_code=404, detail="Not found.")
     return project
+
+
+async def valid_user(
+        user_email=Body(description="enter the member's email address"),
+        user_manager=Depends(get_user_manager)
+):
+    user = await user_manager.get_by_email(user_email)
+    if not user:
+        raise HTTPException(status_code=404, detail="Not found.")
+    return user
+
+
+async def valid_user_without_perm(
+        user=Depends(valid_user),
+        project: Project = Depends(valid_project),
+        session: AsyncSession = Depends(get_async_session),
+):
+    perm_codename = f'project_{project.id}'
+    user_has_perms = await check_user_perms(user, perm_codename, session)
+    if user_has_perms:
+        raise HTTPException(status_code=454, detail=f"User '{user.email}' is member of project {project.name}.")
+    return user
+
+
+async def valid_member_role(
+        member_role_name: str = Body(max_length=300, description="enter the member's role"),
+        session: AsyncSession = Depends(get_async_session),
+):
+    member_role = await get_member_role(member_role_name, session)
+    if not member_role:
+        raise HTTPException(status_code=404, detail="Not found.")
+    return member_role

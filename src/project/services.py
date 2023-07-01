@@ -117,3 +117,9 @@ async def get_user_project_role(project_id, user_id, session):
     member_role = await session.scalar(stmt)
     await session.commit()
     return member_role
+
+
+async def get_member_role(member_role_name, session):
+    stmt = select(MemberRole).where(MemberRole.name == member_role_name)
+    member_role = await session.scalar(stmt)
+    return member_role

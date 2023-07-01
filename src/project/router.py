@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.background import BackgroundTasks
 
@@ -9,11 +9,13 @@ from src.auth.schemas import UserRead
 from src.database import get_async_session
 from src.fault.router import fault_router
 from src.permission.schemas import PermissionCreate
-from src.permission.services import create_permission, add_user_permission, delete_permission
-from src.project.dependencies import valid_project, project_with_user_perm
+from src.permission.services import create_permission, add_user_permission, delete_permission, \
+    get_permission_by_codename
+from src.project.dependencies import valid_project, project_with_user_perm, valid_user, valid_member_role, \
+    valid_user_without_perm
 from fastapi_cache.decorator import cache
 
-from src.project.schemas import ProjectRead, ProjectCreate, ProjectMemberRead, ProjectMemberOUT
+from src.project.schemas import ProjectRead, ProjectCreate, ProjectMemberRead, ProjectMemberOUT, MemberRoleRead
 from src.project.services import create_project, get_projects, delete_project, update_project, create_project_member, \
     get_project_members_srv
 
@@ -21,6 +23,25 @@ project_router = APIRouter(
     prefix="/project",
     tags=['Project']
 )
+
+
+@project_router.post('/{project_id}/member/add', response_model=ProjectMemberOUT)
+async def add_project_member(
+        user=Depends(valid_user_without_perm),
+        member_role=Depends(valid_member_role),
+        project=Depends(project_with_user_perm),
+        session: AsyncSession = Depends(get_async_session)
+):
+    permission = await get_permission_by_codename(codename=f'project_{project.id}', session=session)
+    await add_user_permission(permission, user, session)
+    new_project_member = await create_project_member(project.id, user.id, member_role.name, session)
+    new_project_member_pd = ProjectMemberOUT(
+        id=new_project_member.id,
+        user=UserRead(**user.__dict__),
+        project=ProjectRead(**project.__dict__),
+        member_role=MemberRoleRead(**member_role.__dict__)
+    )
+    return new_project_member_pd
 
 
 @project_router.get('/{project_id}/member', response_model=List[ProjectMemberOUT])
