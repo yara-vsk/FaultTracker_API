@@ -2,7 +2,7 @@
 
 ## General info
 
-<img alt="img.png" height="439" src="img.png" width="314,5"/>
+<img alt="img.png" height="526,8" src="img.png" width="377,4"/>
 
 * Users can registration and authentication;
 * Users can create "project";
