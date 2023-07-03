@@ -12,7 +12,7 @@ from src.permission.schemas import PermissionCreate
 from src.permission.services import create_permission, add_user_permission, delete_permission, \
     get_permission_by_codename
 from src.project.dependencies import valid_project, project_with_user_perm, valid_user, valid_member_role, \
-    valid_user_without_perm
+    valid_user_without_perm, project_with_creator_perm
 from fastapi_cache.decorator import cache
 
 from src.project.schemas import ProjectRead, ProjectCreate, ProjectMemberRead, ProjectMemberOUT, MemberRoleRead
@@ -29,7 +29,7 @@ project_router = APIRouter(
 async def add_project_member(
         user=Depends(valid_user_without_perm),
         member_role=Depends(valid_member_role),
-        project=Depends(project_with_user_perm),
+        project=Depends(project_with_creator_perm),
         session: AsyncSession = Depends(get_async_session)
 ):
     permission = await get_permission_by_codename(codename=f'project_{project.id}', session=session)

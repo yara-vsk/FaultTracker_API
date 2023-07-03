@@ -37,6 +37,15 @@ async def project_with_user_perm(
     return project
 
 
+async def project_with_creator_perm(
+        project: Project = Depends(project_with_user_perm),
+        user=Depends(current_active_user)
+):
+    if user.id != project.creator_id:
+        raise HTTPException(status_code=450, detail="You don't have permission.")
+    return project
+
+
 async def valid_user(
         user_email=Body(description="enter the member's email address"),
         user_manager=Depends(get_user_manager)
