@@ -64,7 +64,19 @@ async def valid_user_without_perm(
     perm_codename = f'project_{project.id}'
     user_has_perms = await check_user_perms(user, perm_codename, session)
     if user_has_perms:
-        raise HTTPException(status_code=454, detail=f"User '{user.email}' is member of project {project.name}.")
+        raise HTTPException(status_code=454, detail=f"User '{user.email}' is a member of project {project.name}.")
+    return user
+
+
+async def valid_user_with_perm(
+        user=Depends(valid_user),
+        project: Project = Depends(valid_project),
+        session: AsyncSession = Depends(get_async_session),
+):
+    perm_codename = f'project_{project.id}'
+    user_has_perms = await check_user_perms(user, perm_codename, session)
+    if not user_has_perms:
+        raise HTTPException(status_code=454, detail=f"User '{user.email}' is not a member of project {project.name}.")
     return user
 
 

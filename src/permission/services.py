@@ -18,7 +18,7 @@ async def get_permission_by_codename(codename, session):
 
 async def delete_permission(codename, session):
     permission = await get_permission_by_codename(codename, session)
-    session.delete(permission)
+    await session.delete(permission)
     await session.commit()
     return
 
@@ -36,3 +36,11 @@ async def check_user_perms(user, codename, session):
         where(Permission.codename == codename)
     user_perms = await session.execute(stmt)
     return user_perms.scalar()
+
+
+async def delete_user_permission(permission_id, user_id, session):
+    stmt = select(UserPermission).where(UserPermission.user_id == user_id, UserPermission.permission_id == permission_id)
+    user_perm = await session.scalar(stmt)
+    await session.delete(user_perm)
+    await session.commit()
+    return user_perm

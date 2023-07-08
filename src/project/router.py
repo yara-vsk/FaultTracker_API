@@ -10,14 +10,14 @@ from src.database import get_async_session
 from src.fault.router import fault_router
 from src.permission.schemas import PermissionCreate
 from src.permission.services import create_permission, add_user_permission, delete_permission, \
-    get_permission_by_codename
+    get_permission_by_codename, delete_user_permission
 from src.project.dependencies import valid_project, project_with_user_perm, valid_user, valid_member_role, \
-    valid_user_without_perm, project_with_creator_perm
+    valid_user_without_perm, project_with_creator_perm, valid_user_with_perm
 from fastapi_cache.decorator import cache
 
 from src.project.schemas import ProjectRead, ProjectCreate, ProjectMemberRead, ProjectMemberOUT, MemberRoleRead
 from src.project.services import create_project, get_projects, delete_project, update_project, create_project_member, \
-    get_project_members_srv
+    get_project_members_srv, get_project_member_srv, get_member_role_by_id, delete_project_member_src
 
 project_router = APIRouter(
     prefix="/project",
@@ -25,7 +25,28 @@ project_router = APIRouter(
 )
 
 
-@project_router.post('/{project_id}/member/add', response_model=ProjectMemberOUT)
+@project_router.delete('/{project_id}/member', response_model=ProjectMemberOUT)
+async def delete_project_member(
+        user=Depends(valid_user_with_perm),
+        project=Depends(project_with_creator_perm),
+        session: AsyncSession = Depends(get_async_session)
+):
+
+    project_member = await get_project_member_srv(project.id, user.id, session)
+    member_role = await get_member_role_by_id(project_member.member_role_id, session)
+    project_member_pd = ProjectMemberOUT(
+        id=project_member.id,
+        user=UserRead(**user.__dict__),
+        project=ProjectRead(**project.__dict__),
+        member_role=MemberRoleRead(**member_role.__dict__)
+    )
+    permission = await get_permission_by_codename(codename=f'project_{project.id}', session=session)
+    await delete_project_member_src(project_member, session)
+    await delete_user_permission(permission.id, user.id, session)
+    return project_member_pd
+
+
+@project_router.post('/{project_id}/member', response_model=ProjectMemberOUT)
 async def add_project_member(
         user=Depends(valid_user_without_perm),
         member_role=Depends(valid_member_role),

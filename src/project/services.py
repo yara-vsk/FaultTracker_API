@@ -111,6 +111,18 @@ async def get_project_members_srv(project_id, session):
     return project_member_objects
 
 
+async def delete_project_member_src(project_member, session):
+    await session.delete(project_member)
+    await session.commit()
+    return
+
+
+async def get_project_member_srv(project_id, user_id, session):
+    stmt = select(ProjectMember).where(ProjectMember.project_id == project_id, ProjectMember.user_id == user_id)
+    project_member = await session.scalar(stmt)
+    return project_member
+
+
 async def get_user_project_role(project_id, user_id, session):
     stmt = select(MemberRole).join(ProjectMember, MemberRole.id == ProjectMember.member_role_id).\
         where(ProjectMember.user_id == user_id, ProjectMember.project_id == project_id)
@@ -121,5 +133,11 @@ async def get_user_project_role(project_id, user_id, session):
 
 async def get_member_role(member_role_name, session):
     stmt = select(MemberRole).where(MemberRole.name == member_role_name)
+    member_role = await session.scalar(stmt)
+    return member_role
+
+
+async def get_member_role_by_id(member_role_id, session):
+    stmt = select(MemberRole).where(MemberRole.id == member_role_id)
     member_role = await session.scalar(stmt)
     return member_role
