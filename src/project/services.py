@@ -123,6 +123,14 @@ async def get_project_member_srv(project_id, user_id, session):
     return project_member
 
 
+async def update_project_member_role_srv(project_id, user_id, new_member_role_id, session):
+    stmt = select(ProjectMember).where(ProjectMember.project_id == project_id, ProjectMember.user_id == user_id)
+    project_member = await session.scalar(stmt)
+    project_member.member_role_id = new_member_role_id
+    await session.commit()
+    return project_member
+
+
 async def get_user_project_role(project_id, user_id, session):
     stmt = select(MemberRole).join(ProjectMember, MemberRole.id == ProjectMember.member_role_id).\
         where(ProjectMember.user_id == user_id, ProjectMember.project_id == project_id)

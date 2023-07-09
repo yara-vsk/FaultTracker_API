@@ -17,7 +17,8 @@ from fastapi_cache.decorator import cache
 
 from src.project.schemas import ProjectRead, ProjectCreate, ProjectMemberRead, ProjectMemberOUT, MemberRoleRead
 from src.project.services import create_project, get_projects, delete_project, update_project, create_project_member, \
-    get_project_members_srv, get_project_member_srv, get_member_role_by_id, delete_project_member_src
+    get_project_members_srv, get_project_member_srv, get_member_role_by_id, delete_project_member_src, \
+    update_project_member_role_srv
 
 project_router = APIRouter(
     prefix="/project",
@@ -63,6 +64,23 @@ async def add_project_member(
         member_role=MemberRoleRead(**member_role.__dict__)
     )
     return new_project_member_pd
+
+
+@project_router.put('/{project_id}/member', response_model=ProjectMemberOUT)
+async def update_project_member_role(
+        user=Depends(valid_user_with_perm),
+        new_member_role=Depends(valid_member_role),
+        project=Depends(project_with_creator_perm),
+        session: AsyncSession = Depends(get_async_session)
+):
+    project_member = await update_project_member_role_srv(project.id, user.id,new_member_role.id, session)
+    project_member_pd = ProjectMemberOUT(
+        id=project_member.id,
+        user=UserRead(**user.__dict__),
+        project=ProjectRead(**project.__dict__),
+        member_role=MemberRoleRead(**new_member_role.__dict__)
+    )
+    return project_member_pd
 
 
 @project_router.get('/{project_id}/member', response_model=List[ProjectMemberOUT])
