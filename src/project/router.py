@@ -101,7 +101,7 @@ async def get_project_by_id(
 
 @project_router.delete('/{project_id}', response_model=ProjectRead)
 async def delete_project_by_id(
-        project=Depends(project_with_user_perm),
+        project=Depends(project_with_creator_perm),
         session: AsyncSession = Depends(get_async_session)
 ):
     await delete_permission(f'project_{project.id}', session)
@@ -112,7 +112,7 @@ async def delete_project_by_id(
 @project_router.put('/{project_id}', response_model=ProjectRead)
 async def update_project_by_id(
         project_new: ProjectCreate,
-        project=Depends(project_with_user_perm),
+        project=Depends(project_with_creator_perm),
         session: AsyncSession = Depends(get_async_session),
 ):
     project_updated = await update_project(project, project_new.name, session)

@@ -22,7 +22,7 @@ def delete_image(file_path):
     os.remove(file_path)
 
 
-async def create_fault(description, project_id, user, back_task, session, file):
+async def create_fault_srv(description, project_id, user, back_task, session, file):
     file_name = f'{uuid4()}.' + str(file.filename.split('.')[1])
     fault = Fault(description=description, creator_id=user.id, project_id=project_id, images=[Image(file_name=file_name)])
     back_task.add_task(write_image, os.path.join(BASE_DIR, 'media', str(user.id), file_name), file)
@@ -37,7 +37,7 @@ async def update_fault(fault, description, back_task, session, file):
     if file:
         for image in fault.images:
             back_task.add_task(delete_image, os.path.join(BASE_DIR, 'media', str(fault.creator_id), image.file_name))
-            session.delete(image)
+            await session.delete(image)
         file_name = f'{uuid4()}.' + str(file.filename.split('.')[1])
         fault.images=[Image(file_name=file_name)]
         back_task.add_task(write_image, os.path.join(BASE_DIR, 'media', str(fault.creator_id), file_name), file)
@@ -60,8 +60,8 @@ async def delete_fault(fault, session, back_task):
     return
 
 
-async def get_faults(session, user_id, project_id):
-    stmt = select(Fault).where(Fault.creator_id == user_id, Fault.project_id == project_id).options(selectinload(Fault.images))
+async def get_faults_srv(session, project_id):
+    stmt = select(Fault).where(Fault.project_id == project_id).options(selectinload(Fault.images))
     faults = await session.execute(stmt)
     return faults.scalars().all()
 
@@ -74,5 +74,5 @@ async def get_image(image_id, session):
 def get_fault_with_full_link_image(fault, base_url):
     fault_pd =FaultRead.from_orm(fault)
     for image in fault_pd.images:
-        image.link = str(base_url) + 'fault/' + str(fault_pd.id) + image.link
+        image.link = str(base_url) + 'project/' + str(fault_pd.project_id) + '/' + 'fault/' + str(fault_pd.id) + image.link
     return fault_pd

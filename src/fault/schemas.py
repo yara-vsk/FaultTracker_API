@@ -9,7 +9,7 @@ from src.auth.schemas import UserRead
 class ImageRead(BaseModel):
     id: int
     file_name: str
-    link: Union[str, None] =None
+    link: Union[str, None] = None
 
     class Config:
         orm_mode = True

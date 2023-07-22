@@ -30,9 +30,7 @@ async def project_with_user_perm(
     if not user_has_perms:
         raise HTTPException(status_code=404, detail="Not found.")
     user_project_role = await get_user_project_role(project.id, user.id, session)
-    if request.method == 'PUT' and user_project_role.name == 'reader':
-        raise HTTPException(status_code=404, detail="Not found.")
-    if request.method == 'DELETE' and project.creator_id != user.id:
+    if request.method in ['PUT', 'DELETE', 'POST'] and user_project_role.name == 'reader':
         raise HTTPException(status_code=404, detail="Not found.")
     return project
 
