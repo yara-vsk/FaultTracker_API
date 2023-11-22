@@ -1,4 +1,4 @@
-# FastAPI project
+# FaultTracker API
 
 This API streamlines collaborative project management, providing users with a robust platform for fault tracking, project creation, and seamless member collaboration. The added capability to generate and send detailed reports via email enhances the user experience, ensuring effective communication and project oversight.
 
