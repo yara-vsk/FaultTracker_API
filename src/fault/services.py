@@ -72,7 +72,7 @@ async def get_image(image_id, session):
 
 
 def get_fault_with_full_link_image(fault, base_url):
-    fault_pd =FaultRead.from_orm(fault)
+    fault_pd = FaultRead.from_orm(fault)
     for image in fault_pd.images:
         image.link = str(base_url) + 'project/' + str(fault_pd.project_id) + '/' + 'fault/' + str(fault_pd.id) + image.link
     return fault_pd
